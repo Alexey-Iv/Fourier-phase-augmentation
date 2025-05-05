@@ -5,6 +5,8 @@ import glob
 import os
 from PIL import Image
 import random
+from torch.utils.data import DataLoader, Dataset
+import torch.nn.functional as F
 
 
 #(64, 512, 3)
@@ -154,3 +156,60 @@ class Triplet(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.dataset)
 
+
+def get_dataloaders_to_IRIS(
+        path=None,
+        num_seen=1,
+        batch_size=1,
+        transform_train=None,
+        transform_test=None
+    ):
+
+    if transform_test == None:
+        transform_test = transform_train
+
+    train_data = IrisDataset(
+        path,
+        num_seen,
+        transform_train,
+        "train"
+    )
+
+    test_data = IrisDataset(
+        path,
+        num_seen,
+        transform_test,
+        "test_all"
+    )
+
+    test_dl = DataLoader(
+        test_data,
+        batch_size,
+        num_workers=4,
+        pin_memory=True,
+    )
+
+    train_dl = DataLoader(
+        train_data,
+        batch_size,
+        num_workers=4,
+        pin_memory=True,
+        shuffle=True,
+    )
+
+    return train_dl, test_dl
+
+
+def get_embeddings(model, dataloader, device=None):
+    embeddings = []
+    labels = []
+
+    with torch.no_grad():
+        for images, targets in dataloader:
+            images = images.to(device)
+            outputs = model(images)
+            outputs = F.normalize(outputs)
+            embeddings.append(outputs.cpu().numpy())
+            labels.append(targets.cpu().numpy())
+
+    return np.concatenate(embeddings), np.concatenate(labels)

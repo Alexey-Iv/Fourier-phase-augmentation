@@ -2,6 +2,7 @@ import torch
 from torch import nn
 import torchvision.models as models
 import random
+import torch.nn.functional as F
 
 
 class Masked_Residual_Aggregation(nn.Module):
@@ -110,3 +111,15 @@ class APFA(nn.Module):
         x = self.classifier(x)
 
         return x
+
+
+class Network(nn.Module):
+    def __init__(self, original_model_parameters):
+        super().__init__()
+
+        self.orig_branch = APFA(**original_model_parameters)
+
+    def forward(self, orig_img):
+        norm_emb = F.normalize(self.orig_branch(orig_img), p=2, dim=1)
+
+        return norm_emb
