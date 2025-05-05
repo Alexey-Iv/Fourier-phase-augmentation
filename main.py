@@ -4,12 +4,18 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torchvision.datasets import ImageFolder
 import torchvision
 import torch.nn.functional as F
-from torch.nn.functional import cosine_similarity, normalize
+from torch.nn.functional import normalize
 from torchvision import datasets
 from torch import nn
 import torch.optim as optim
 import torch
 from torchvision.transforms import transforms
+import numpy as np
+from tqdm import tqdm
+import matplotlib.pyplot as plt
+import random
+import os
+from sklearn.manifold import TSNE
 
 
 from model.apha import Network
@@ -17,15 +23,8 @@ from metrics.metrics import calculate_eer, get_hist, scatter
 from model.dataset import norm_transform, another_transform, IrisDataset, Triplet, get_embeddings, get_dataloaders_to_IRIS
 from model.loss import TripletLoss, BatchHardTripletLoss, Hard_mining_TripletLoss
 
-import numpy as np
-import tqdm
-from tqdm import tqdm
-import matplotlib.pyplot as plt
-import random
-import os
-from PIL import Image
-import itertools
-from sklearn.manifold import TSNE
+
+## -------------------------------------------------------------- ##
 
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
