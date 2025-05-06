@@ -141,3 +141,4 @@ class TripletLoss(nn.Module):
         loss = F.relu(dist_pos - dist_neg + self.margin)
 
         return loss.mean()
+

@@ -10,7 +10,7 @@ import seaborn as sns
 import matplotlib.patheffects as PathEffects
 import numpy as np
 import os
-import time
+from datetime import datetime
 
 
 def calculate_eer(embeddings, labels):
@@ -86,13 +86,13 @@ def cal_eer(target, imposter):
     return eer, eer_threshold
 
 
-def get_hist(model, test_dl, out="result.png", root=None):
+def get_hist(model, test_dl, device=None, out="result.png", root=None):
     if root == None:
-        root = f"hist_{time.time}"
+        root = f"hist_{datetime.now()}"
         if not os.path.exists(root):
             os.makedirs(root)
 
-    embeddings, labels = get_embeddings(model, test_dl)
+    embeddings, labels = get_embeddings(model, test_dl, device)
 
     # Создаем словарь для группировки
     class_embeddings = {}
@@ -176,19 +176,17 @@ def get_hist(model, test_dl, out="result.png", root=None):
 
     plt.savefig(os.path.join(root, out))
 
-    plt.show()
+    #plt.show()
+    plt.close()
 
     print(f"EER: {eer.item():.4f} at threshold: {eer_threshold.item():.4f}")
 
 
 # Define our own plot function
 def scatter(x, labels, root='plot', subtitle=None):
-    labels -= min(labels)
-
+    labels -= 240
     num_classes = len(set(labels)) # Calculate the number of classes
-
     palette = np.array(sns.color_palette("hls", num_classes)) # Choosing color
-
     # Create a seaborn scatter plot #
     f = plt.figure(figsize=(8, 8))
     ax = plt.subplot(aspect='equal')
@@ -221,3 +219,4 @@ def scatter(x, labels, root='plot', subtitle=None):
         os.makedirs(root)
 
     plt.savefig(os.path.join(root, str(subtitle)))
+    plt.close()

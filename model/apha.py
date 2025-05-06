@@ -63,17 +63,19 @@ class Hybrid_Module(nn.Module):
     # in_channels = кол-во каналов из batch из CNN(HxWxC)
     # num_parts кол-во масок в Masked Residual Aggregation, гипер параматр
     # gamma - для фазовой аугментации
-    def __init__(self, in_channels, num_parts, gamma):
+    def __init__(self, in_channels, num_parts, gamma, ifft=True):
         super().__init__()
         self.masked_module = Masked_Residual_Aggregation(in_channels, num_parts)
         self.phase_augm = Phase_Based_Augmentation(gamma)
+        self.ifft = ifft
 
     def forward(self, x):
         x = self.masked_module(x)
 
         x = self.phase_augm(x)
 
-        x = torch.fft.ifft2(x, norm='ortho').real
+        if self.ifft:
+            x = torch.fft.ifft2(x, norm='ortho').real
 
         return x
 
@@ -113,7 +115,7 @@ class APFA(nn.Module):
         return x
 
 
-class Network(nn.Module):
+class Triplet_Network(nn.Module):
     def __init__(self, original_model_parameters):
         super().__init__()
 
@@ -123,3 +125,4 @@ class Network(nn.Module):
         norm_emb = F.normalize(self.orig_branch(orig_img), p=2, dim=1)
 
         return norm_emb
+

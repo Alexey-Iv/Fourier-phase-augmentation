@@ -7,6 +7,8 @@ from PIL import Image
 import random
 from torch.utils.data import DataLoader, Dataset
 import torch.nn.functional as F
+from sklearn.neighbors import KNeighborsClassifier
+import numpy as np
 
 
 #(64, 512, 3)
@@ -49,6 +51,19 @@ another_transform = transforms.Compose([
         std=[0.229, 0.224, 0.225]
     )
 ])
+
+
+# TODO
+# написать датасет для разбиения обучающей и тестовой выборки
+class Iris_Classification_Dataset(torch.utils.data.Dataset):
+    def __init__():
+        pass
+
+    def __len__():
+        pass
+
+    def __getitem__():
+        pass
 
 
 class IrisDataset(torch.utils.data.Dataset):
@@ -198,6 +213,105 @@ def get_dataloaders_to_IRIS(
     )
 
     return train_dl, test_dl
+
+
+def get_dl_2_IRIS(
+    path=None,
+    num_seen=1,
+    batch_size=1,
+    transform_train=None,
+    transform_test=None
+):
+    # if transform_test == None:
+    #     transform_test = transform_train
+
+    train_data = IrisDataset(
+        path,
+        num_seen,
+        transform_train,
+        "train"
+    )
+
+    test_data_few = IrisDataset(
+        path,
+        num_seen,
+        transform_train,
+        "test_few"
+    )
+
+    test_data_all = IrisDataset(
+        path,
+        num_seen,
+        transform_train,
+        "test_all"
+    )
+
+    test_dl_few = DataLoader(
+        test_data_few,
+        batch_size,
+        num_workers=4,
+        pin_memory=True,
+    )
+
+    test_dl_all = DataLoader(
+        test_data_all,
+        batch_size,
+        num_workers=4,
+        pin_memory=True,
+    )
+
+    train_dl = DataLoader(
+        train_data,
+        batch_size,
+        num_workers=4,
+        pin_memory=True,
+        shuffle=True,
+    )
+
+    return train_dl, test_dl_few, test_dl_all
+
+
+def run_emb_net(emb_net, dataloader, device=None, normalize=False):
+    data_x = []
+    data_y = []
+    device = device
+    with torch.no_grad():
+        for inputs, labels in dataloader:
+            feats = emb_net(inputs.to(device))
+            if normalize:
+                feats = F.normalize(feats)
+            feats = feats.detach().cpu().numpy()
+            labels = labels.detach().cpu().numpy()
+            data_x.append(feats)
+            data_y.append(labels)
+
+    data_x = np.concatenate(data_x, axis=0)
+    data_y = np.concatenate(data_y, axis=0)
+    return data_x, data_y
+
+
+def train_knn(emb_net, oneshot_dl, device, normalize=False):
+    data_x, data_y = run_emb_net(emb_net, oneshot_dl, device, normalize)
+    knn = KNeighborsClassifier(n_neighbors=1)
+    knn = knn.fit(data_x, data_y)
+    return knn
+
+
+def testing_model(emb_net, test_dl_few, test_dl_all, device=None, normalize=False):
+    data_x, data_y = run_emb_net(emb_net, test_dl_all, device, normalize)
+    knn = train_knn(emb_net, test_dl_few, device)
+
+    total_acc = 0
+    total_cnt = 0
+    for feat, label in zip(data_x, data_y):
+        pred = knn.predict(feat[None]).squeeze(0)
+        total_acc += pred == label
+        total_cnt += 1
+
+    acc = total_acc / total_cnt
+    print(f"Accuracy = {acc:.2%} ({total_acc} / {total_cnt})")
+
+    return acc, total_acc, total_cnt
 
 
 def get_embeddings(model, dataloader, device=None):

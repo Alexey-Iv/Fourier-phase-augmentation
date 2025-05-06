@@ -18,9 +18,11 @@ import os
 from sklearn.manifold import TSNE
 
 
-from model.apha import Network
+from model.apha import Triplet_Network
 from metrics.metrics import calculate_eer, get_hist, scatter
-from model.dataset import norm_transform, another_transform, IrisDataset, Triplet, get_embeddings, get_dataloaders_to_IRIS
+from model.dataset import norm_transform, another_transform, IrisDataset, Triplet, get_embeddings, \
+    get_dataloaders_to_IRIS, get_dl_2_IRIS, testing_model
+from model.resnet import get_resnet
 from model.loss import TripletLoss, BatchHardTripletLoss, Hard_mining_TripletLoss
 
 
@@ -30,20 +32,20 @@ from model.loss import TripletLoss, BatchHardTripletLoss, Hard_mining_TripletLos
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-NETWORK = True      # Do you want to use new Network? [True] or backbone (resnet) [False]
+NETWORK = False     # Do you want to use new Network? [True] or backbone (resnet) [False]
 
 #hyper parameters:
-num_epochs = 5
+num_epochs = 50
 PATH_TO_NORMALIZE_PHOTOES = "./Norm_photo"
-NUM_SEEN_CLASSES = 1
-batch_size = 16
-margin = 0.5
+NUM_SEEN_CLASSES = 150
+batch_size = 32
+margin = 0.6
 learning_rate = 0.0001
 
 
 original_model_parameters = {
     'in_channels' : 2048,
-    'num_parts' : 6,
+    'num_parts' : 4,
     'gamma' : 0.05,
     'num_classes' : 512
 }
@@ -52,11 +54,11 @@ original_model_parameters = {
 if __name__ == '__main__':
 
     if NETWORK:
-        model = Network(original_model_parameters).to(device)
+        model = Triplet_Network(original_model_parameters).to(device)
     else:
         model = get_resnet(original_model_parameters['num_classes']).to(device)
 
-    train_dataloader, test_dataloader = get_dataloaders_to_IRIS(
+    train_dataloader, few_dataloader, test_dataloader = get_dl_2_IRIS(
         PATH_TO_NORMALIZE_PHOTOES,
         NUM_SEEN_CLASSES,
         batch_size,
@@ -109,6 +111,9 @@ if __name__ == '__main__':
         print(f"Epoch {e+1}, Loss: {train_loss:.4f} \n LR: {optimizer.param_groups[0]['lr']}")
 
         model.eval()
+
+        testing_model(model, few_dataloader, test_dataloader, device=device)
+
         embeddings, labels = get_embeddings(model, test_dataloader, device=device)
         metrics = calculate_eer(embeddings, labels)
 
@@ -119,12 +124,12 @@ if __name__ == '__main__':
                 Impostor distances: {metrics['impostor_mean']:.2f} ± {metrics['impostor_std']:.2f}
         """)
 
-        if (e+1) % 5 == 0:
+        if (e+5) % 1 == 0:
             tsne = TSNE(random_state=0)
             embeddings, labels = get_embeddings(model, test_dataloader, device=device)
             train_tsne_embeds = tsne.fit_transform(embeddings)
 
-            get_hist(model, test_dataloader, out=f"hist_{e}.png")
+            get_hist(model, test_dataloader, device=device, out=f"hist_{e}.png")
 
             scatter(train_tsne_embeds, labels.astype(np.int32))
 
