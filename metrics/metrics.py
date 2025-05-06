@@ -85,12 +85,20 @@ def cal_eer(target, imposter):
 
     return eer, eer_threshold
 
+ROOT_HIST = None
 
 def get_hist(model, test_dl, device=None, out="result.png", root=None):
+    global ROOT_HIST
     if root == None:
-        root = f"hist_{datetime.now()}"
-        if not os.path.exists(root):
-            os.makedirs(root)
+        if ROOT_HIST == None:
+            ROOT_HIST = f"hist_{datetime.now()}"
+            root = ROOT_HIST
+            if not os.path.exists(ROOT_HIST):
+                os.makedirs(ROOT_HIST)
+        else:
+            root = ROOT_HIST
+    else:
+        ROOT_HIST = root
 
     embeddings, labels = get_embeddings(model, test_dl, device)
 
@@ -182,10 +190,24 @@ def get_hist(model, test_dl, device=None, out="result.png", root=None):
     print(f"EER: {eer.item():.4f} at threshold: {eer_threshold.item():.4f}")
 
 
+PATH_PLOT = None
 # Define our own plot function
-def scatter(x, labels, root='plot', subtitle=None):
-    labels -= 240
-    num_classes = len(set(labels)) # Calculate the number of classes
+def scatter(x, labels, root=None, subtitle=None):
+    global PATH_PLOT
+    if root == None:
+        if PATH_PLOT == None:
+            PATH_PLOT = f"plot_{datetime.now()}"
+            root = ROOT_HIST
+            if not os.path.exists(root):
+                os.makedirs(root)
+        else:
+            root = PATH_PLOT
+    else:
+        PATH_PLOT = root
+
+    unique_labels = np.unique(labels)
+    labels = np.searchsorted(unique_labels, labels)  # Переиндексация в 0,1,2,...
+    num_classes = len(unique_labels)
     palette = np.array(sns.color_palette("hls", num_classes)) # Choosing color
     # Create a seaborn scatter plot #
     f = plt.figure(figsize=(8, 8))

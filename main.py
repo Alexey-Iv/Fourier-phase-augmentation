@@ -124,7 +124,7 @@ if __name__ == '__main__':
                 Impostor distances: {metrics['impostor_mean']:.2f} ± {metrics['impostor_std']:.2f}
         """)
 
-        if (e+5) % 1 == 0:
+        if (e+2) % 1 == 0:
             tsne = TSNE(random_state=0)
             embeddings, labels = get_embeddings(model, test_dataloader, device=device)
             train_tsne_embeds = tsne.fit_transform(embeddings)
