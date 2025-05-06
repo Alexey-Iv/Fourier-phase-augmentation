@@ -1,0 +1,421 @@
+Starts fiting the model, Margin = 0.6
+Epoch 1, Loss: 0.1237
+ LR: 0.0001
+Accuracy = 29.33% (210 / 716)
+
+                EER: 0.2533
+                Threshold: -0.6941
+                Genuine distances: 0.63 ± 0.10
+                Impostor distances: 0.77 ± 0.11
+
+EER: 0.2532 at threshold: 0.6947
+Epoch 2, Loss: 0.1193
+ LR: 0.0001
+Accuracy = 39.94% (286 / 716)
+
+                EER: 0.1939
+                Threshold: -0.8050
+                Genuine distances: 0.68 ± 0.15
+                Impostor distances: 0.95 ± 0.16
+
+EER: 0.1939 at threshold: 0.8055
+Epoch 3, Loss: 0.1185
+ LR: 0.0001
+Accuracy = 46.65% (334 / 716)
+
+                EER: 0.1738
+                Threshold: -0.9358
+                Genuine distances: 0.74 ± 0.21
+                Impostor distances: 1.15 ± 0.22
+
+EER: 0.1740 at threshold: 0.9362
+Epoch 4, Loss: 0.1040
+ LR: 0.0001
+Accuracy = 56.28% (403 / 716)
+
+                EER: 0.1922
+                Threshold: -0.8985
+                Genuine distances: 0.68 ± 0.23
+                Impostor distances: 1.12 ± 0.25
+
+EER: 0.1921 at threshold: 0.8982
+Epoch 5, Loss: 0.0807
+ LR: 0.0001
+Accuracy = 61.03% (437 / 716)
+
+                EER: 0.1338
+                Threshold: -0.9795
+                Genuine distances: 0.72 ± 0.23
+                Impostor distances: 1.27 ± 0.25
+
+EER: 0.1338 at threshold: 0.9793
+Epoch 6, Loss: 0.0761
+ LR: 0.0001
+Accuracy = 61.31% (439 / 716)
+
+                EER: 0.1343
+                Threshold: -1.0258
+                Genuine distances: 0.72 ± 0.26
+                Impostor distances: 1.32 ± 0.25
+
+EER: 0.1345 at threshold: 1.0258
+Epoch 7, Loss: 0.0536
+ LR: 0.0001
+Accuracy = 63.55% (455 / 716)
+
+                EER: 0.1331
+                Threshold: -0.9866
+                Genuine distances: 0.69 ± 0.26
+                Impostor distances: 1.28 ± 0.25
+
+EER: 0.1331 at threshold: 0.9858
+Epoch 8, Loss: 0.0555
+ LR: 0.0001
+Accuracy = 70.81% (507 / 716)
+
+                EER: 0.1167
+                Threshold: -1.0077
+                Genuine distances: 0.69 ± 0.25
+                Impostor distances: 1.32 ± 0.25
+
+EER: 0.1168 at threshold: 1.0074
+Epoch 9, Loss: 0.0463
+ LR: 0.0001
+Accuracy = 74.44% (533 / 716)
+
+                EER: 0.1124
+                Threshold: -1.0148
+                Genuine distances: 0.68 ± 0.25
+                Impostor distances: 1.32 ± 0.24
+
+EER: 0.1125 at threshold: 1.0152
+Epoch 10, Loss: 0.0424
+ LR: 0.0001
+Accuracy = 70.81% (507 / 716)
+
+                EER: 0.1054
+                Threshold: -0.9830
+                Genuine distances: 0.64 ± 0.25
+                Impostor distances: 1.32 ± 0.25
+
+EER: 0.1054 at threshold: 0.9820
+Epoch 11, Loss: 0.0402
+ LR: 0.0001
+Accuracy = 73.88% (529 / 716)
+
+                EER: 0.0990
+                Threshold: -0.9744
+                Genuine distances: 0.64 ± 0.25
+                Impostor distances: 1.31 ± 0.24
+
+EER: 0.0989 at threshold: 0.9739
+Epoch 12, Loss: 0.0314
+ LR: 0.0001
+Accuracy = 76.12% (545 / 716)
+
+                EER: 0.1049
+                Threshold: -0.9669
+                Genuine distances: 0.63 ± 0.25
+                Impostor distances: 1.29 ± 0.24
+
+EER: 0.1046 at threshold: 0.9661
+Epoch 13, Loss: 0.0315
+ LR: 0.0001
+Accuracy = 75.00% (537 / 716)
+
+                EER: 0.1082
+                Threshold: -0.9798
+                Genuine distances: 0.64 ± 0.26
+                Impostor distances: 1.28 ± 0.23
+
+EER: 0.1080 at threshold: 0.9794
+Epoch 14, Loss: 0.0277
+ LR: 0.0001
+Accuracy = 76.82% (550 / 716)
+
+                EER: 0.0975
+                Threshold: -1.0055
+                Genuine distances: 0.66 ± 0.25
+                Impostor distances: 1.33 ± 0.24
+
+EER: 0.0977 at threshold: 1.0048
+Epoch 15, Loss: 0.0216
+ LR: 0.0001
+Accuracy = 73.88% (529 / 716)
+
+                EER: 0.1242
+                Threshold: -0.9864
+                Genuine distances: 0.64 ± 0.27
+                Impostor distances: 1.29 ± 0.24
+
+EER: 0.1242 at threshold: 0.9857
+Epoch 16, Loss: 0.0186
+ LR: 0.0001
+Accuracy = 78.21% (560 / 716)
+
+                EER: 0.0998
+                Threshold: -0.9523
+                Genuine distances: 0.61 ± 0.25
+                Impostor distances: 1.27 ± 0.24
+
+EER: 0.0995 at threshold: 0.9517
+Epoch 17, Loss: 0.0165
+ LR: 0.0001
+Accuracy = 76.26% (546 / 716)
+
+                EER: 0.1210
+                Threshold: -0.8958
+                Genuine distances: 0.59 ± 0.25
+                Impostor distances: 1.19 ± 0.24
+
+EER: 0.1215 at threshold: 0.8960
+Epoch 18, Loss: 0.0157
+ LR: 0.0001
+Accuracy = 75.98% (544 / 716)
+
+                EER: 0.1043
+                Threshold: -0.9749
+                Genuine distances: 0.63 ± 0.25
+                Impostor distances: 1.29 ± 0.23
+
+EER: 0.1040 at threshold: 0.9741
+Epoch 19, Loss: 0.0119
+ LR: 0.0001
+Accuracy = 80.17% (574 / 716)
+
+                EER: 0.1087
+                Threshold: -0.9721
+                Genuine distances: 0.62 ± 0.26
+                Impostor distances: 1.28 ± 0.24
+
+EER: 0.1088 at threshold: 0.9727
+Epoch 20, Loss: 0.0119
+ LR: 0.0001
+Accuracy = 82.68% (592 / 716)
+
+                EER: 0.0934
+                Threshold: -0.9713
+                Genuine distances: 0.62 ± 0.25
+                Impostor distances: 1.28 ± 0.22
+
+EER: 0.0935 at threshold: 0.9709
+Epoch 21, Loss: 0.0067
+ LR: 0.0001
+Accuracy = 79.33% (568 / 716)
+
+                EER: 0.0956
+                Threshold: -0.9797
+                Genuine distances: 0.62 ± 0.25
+                Impostor distances: 1.29 ± 0.23
+
+/home/a.ivanov/metrics/metrics.py:159: RuntimeWarning: More than 20 figures have been opened. Figures created through the pyplot interface (`matplotlib.pyplot.figure`) are retained until explicitly closed and may consume too much memory. (To control this warning, see the rcParam `figure.max_open_warning`). Consider using `matplotlib.pyplot.close()`.
+  plt.figure(figsize=(10, 6))
+EER: 0.0958 at threshold: 0.9800
+Epoch 22, Loss: 0.0120
+ LR: 0.0001
+Accuracy = 76.68% (549 / 716)
+
+                EER: 0.1076
+                Threshold: -0.9652
+                Genuine distances: 0.62 ± 0.26
+                Impostor distances: 1.27 ± 0.23
+
+EER: 0.1077 at threshold: 0.9660
+Epoch 23, Loss: 0.0113
+ LR: 0.0001
+Accuracy = 81.01% (580 / 716)
+
+                EER: 0.1006
+                Threshold: -0.9270
+                Genuine distances: 0.60 ± 0.25
+                Impostor distances: 1.25 ± 0.24
+
+EER: 0.1008 at threshold: 0.9271
+Epoch 24, Loss: 0.0120
+ LR: 0.0001
+Accuracy = 80.45% (576 / 716)
+
+                EER: 0.1085
+                Threshold: -0.9578
+                Genuine distances: 0.61 ± 0.27
+                Impostor distances: 1.27 ± 0.24
+
+EER: 0.1081 at threshold: 0.9565
+Epoch 25, Loss: 0.0089
+ LR: 1e-05
+Accuracy = 81.56% (584 / 716)
+
+                EER: 0.0989
+                Threshold: -0.9982
+                Genuine distances: 0.62 ± 0.26
+                Impostor distances: 1.31 ± 0.23
+
+EER: 0.0986 at threshold: 0.9970
+Epoch 26, Loss: 0.0081
+ LR: 1e-05
+Accuracy = 82.96% (594 / 716)
+
+                EER: 0.0911
+                Threshold: -1.0042
+                Genuine distances: 0.63 ± 0.26
+                Impostor distances: 1.32 ± 0.22
+
+EER: 0.0910 at threshold: 1.0038
+Epoch 27, Loss: 0.0089
+ LR: 1e-05
+Accuracy = 83.24% (596 / 716)
+
+                EER: 0.0930
+                Threshold: -0.9864
+                Genuine distances: 0.62 ± 0.25
+                Impostor distances: 1.30 ± 0.23
+
+EER: 0.0932 at threshold: 0.9871
+Epoch 28, Loss: 0.0054
+ LR: 1.0000000000000002e-06
+Accuracy = 82.68% (592 / 716)
+
+                EER: 0.0901
+                Threshold: -0.9928
+                Genuine distances: 0.62 ± 0.25
+                Impostor distances: 1.31 ± 0.22
+
+EER: 0.0900 at threshold: 0.9924
+Epoch 29, Loss: 0.0062
+ LR: 1.0000000000000002e-06
+Accuracy = 82.40% (590 / 716)
+
+                EER: 0.0914
+                Threshold: -0.9883
+                Genuine distances: 0.62 ± 0.25
+                Impostor distances: 1.31 ± 0.23
+
+EER: 0.0909 at threshold: 0.9877
+Epoch 30, Loss: 0.0067
+ LR: 1.0000000000000002e-06
+Accuracy = 82.82% (593 / 716)
+
+                EER: 0.0909
+                Threshold: -0.9842
+                Genuine distances: 0.62 ± 0.25
+                Impostor distances: 1.30 ± 0.22
+
+EER: 0.0913 at threshold: 0.9845
+Epoch 31, Loss: 0.0064
+ LR: 1.0000000000000002e-06
+Accuracy = 82.82% (593 / 716)
+
+                EER: 0.0890
+                Threshold: -0.9840
+                Genuine distances: 0.62 ± 0.25
+                Impostor distances: 1.30 ± 0.22
+
+EER: 0.0891 at threshold: 0.9843
+Epoch 32, Loss: 0.0055
+ LR: 1.0000000000000002e-07
+Accuracy = 83.38% (597 / 716)
+
+                EER: 0.0915
+                Threshold: -0.9960
+                Genuine distances: 0.63 ± 0.26
+                Impostor distances: 1.31 ± 0.22
+
+EER: 0.0913 at threshold: 0.9965
+Epoch 33, Loss: 0.0063
+ LR: 1.0000000000000002e-07
+Accuracy = 83.80% (600 / 716)
+
+                EER: 0.0890
+                Threshold: -0.9968
+                Genuine distances: 0.62 ± 0.25
+                Impostor distances: 1.31 ± 0.22
+
+EER: 0.0889 at threshold: 0.9964
+Epoch 34, Loss: 0.0066
+ LR: 1.0000000000000002e-07
+Accuracy = 82.68% (592 / 716)
+
+                EER: 0.0934
+                Threshold: -0.9811
+                Genuine distances: 0.62 ± 0.25
+                Impostor distances: 1.30 ± 0.23
+
+EER: 0.0936 at threshold: 0.9814
+Epoch 35, Loss: 0.0040
+ LR: 1.0000000000000004e-08
+Accuracy = 83.80% (600 / 716)
+
+                EER: 0.0925
+                Threshold: -0.9788
+                Genuine distances: 0.62 ± 0.25
+                Impostor distances: 1.30 ± 0.23
+
+EER: 0.0924 at threshold: 0.9779
+Epoch 36, Loss: 0.0064
+ LR: 1.0000000000000004e-08
+Accuracy = 84.64% (606 / 716)
+
+                EER: 0.0876
+                Threshold: -1.0029
+                Genuine distances: 0.63 ± 0.25
+                Impostor distances: 1.32 ± 0.22
+
+EER: 0.0877 at threshold: 1.0035
+Epoch 37, Loss: 0.0086
+ LR: 1.0000000000000004e-08
+Accuracy = 83.10% (595 / 716)
+
+                EER: 0.0897
+                Threshold: -0.9880
+                Genuine distances: 0.62 ± 0.25
+                Impostor distances: 1.31 ± 0.22
+
+EER: 0.0898 at threshold: 0.9877
+Epoch 38, Loss: 0.0081
+ LR: 1.0000000000000004e-08
+Accuracy = 82.96% (594 / 716)
+
+                EER: 0.0905
+                Threshold: -1.0000
+                Genuine distances: 0.63 ± 0.26
+                Impostor distances: 1.31 ± 0.22
+
+EER: 0.0905 at threshold: 1.0008
+Epoch 39, Loss: 0.0059
+ LR: 1.0000000000000004e-08
+Accuracy = 82.40% (590 / 716)
+
+                EER: 0.0914
+                Threshold: -0.9811
+                Genuine distances: 0.62 ± 0.25
+                Impostor distances: 1.30 ± 0.23
+
+EER: 0.0914 at threshold: 0.9808
+Epoch 40, Loss: 0.0068
+ LR: 1.0000000000000004e-08
+Accuracy = 83.10% (595 / 716)
+
+                EER: 0.0925
+                Threshold: -0.9892
+                Genuine distances: 0.62 ± 0.25
+                Impostor distances: 1.30 ± 0.22
+
+^CTraceback (most recent call last):
+  File "main_tr.py", line 129, in <module>
+    train_tsne_embeds = tsne.fit_transform(embeddings)
+  File "/home/a.ivanov/project_augm/.venv/lib/python3.8/site-packages/sklearn/utils/_set_output.py", line 157, in wrapped
+    data_to_wrap = f(self, X, *args, **kwargs)
+  File "/home/a.ivanov/project_augm/.venv/lib/python3.8/site-packages/sklearn/base.py", line 1152, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/home/a.ivanov/project_augm/.venv/lib/python3.8/site-packages/sklearn/manifold/_t_sne.py", line 1111, in fit_transform
+    embedding = self._fit(X)
+  File "/home/a.ivanov/project_augm/.venv/lib/python3.8/site-packages/sklearn/manifold/_t_sne.py", line 1001, in _fit
+    return self._tsne(
+  File "/home/a.ivanov/project_augm/.venv/lib/python3.8/site-packages/sklearn/manifold/_t_sne.py", line 1069, in _tsne
+    params, kl_divergence, it = _gradient_descent(obj_func, params, **opt_args)
+  File "/home/a.ivanov/project_augm/.venv/lib/python3.8/site-packages/sklearn/manifold/_t_sne.py", line 402, in _gradient_descent
+    error, grad = objective(p, *args, **kwargs)
+  File "/home/a.ivanov/project_augm/.venv/lib/python3.8/site-packages/sklearn/manifold/_t_sne.py", line 283, in _kl_divergence_bh
+    error = _barnes_hut_tsne.gradient(
+KeyboardInterrupt
+
