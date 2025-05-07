@@ -19,10 +19,10 @@ from sklearn.manifold import TSNE
 
 
 from model.apha import Triplet_Network
-from metrics.metrics import calculate_eer, get_hist, scatter
+from metrics.metrics import calculate_eer, get_hist, scatter, check
 from model.dataset import norm_transform, another_transform, IrisDataset, Triplet, get_embeddings, \
     get_dataloaders_to_IRIS, get_dl_2_IRIS, testing_model
-from model.resnet import get_resnet
+from model.resnet import get_resnet, get_resnet152
 from model.loss import TripletLoss, BatchHardTripletLoss, Hard_mining_TripletLoss
 
 
@@ -32,12 +32,12 @@ from model.loss import TripletLoss, BatchHardTripletLoss, Hard_mining_TripletLos
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-NETWORK = False     # Do you want to use new Network? [True] or backbone (resnet) [False]
+NETWORK = False    # Do you want to use new Network? [True] or backbone (resnet) [False]
 
 #hyper parameters:
 num_epochs = 50
 PATH_TO_NORMALIZE_PHOTOES = "./Norm_photo"
-NUM_SEEN_CLASSES = 150
+NUM_SEEN_CLASSES = 200
 batch_size = 32
 margin = 0.6
 learning_rate = 0.0001
@@ -58,6 +58,9 @@ if __name__ == '__main__':
     else:
         model = get_resnet(original_model_parameters['num_classes']).to(device)
 
+    resnet50 = get_resnet152(original_model_parameters['num_classes']).to(device)
+    resnet50.eval()
+
     train_dataloader, few_dataloader, test_dataloader = get_dl_2_IRIS(
         PATH_TO_NORMALIZE_PHOTOES,
         NUM_SEEN_CLASSES,
@@ -65,8 +68,8 @@ if __name__ == '__main__':
         norm_transform
     )
 
-
     criterion = Hard_mining_TripletLoss(margin=margin, device=device)
+    criterion_2 = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=2)
 
@@ -91,11 +94,17 @@ if __name__ == '__main__':
                 images = images.to(device)
                 labels = labels.to(device)
 
-                embeddings = model(images)
-
                 optimizer.zero_grad()
 
+                embeddings = model(images)
+
+                with torch.no_grad():
+                    emb = resnet50(images)
+
                 loss = criterion(embeddings, labels)
+                loss_mse = criterion_2(embeddings, emb)
+
+                loss += loss_mse
 
                 loss.backward()
 
@@ -111,21 +120,21 @@ if __name__ == '__main__':
         print(f"Epoch {e+1}, Loss: {train_loss:.4f} \n LR: {optimizer.param_groups[0]['lr']}")
 
         model.eval()
-
+        print(f"Result : {check(resnet50, model, test_dataloader, device) * 100:.4f} %")
         testing_model(model, few_dataloader, test_dataloader, device=device)
 
         embeddings, labels = get_embeddings(model, test_dataloader, device=device)
         metrics = calculate_eer(embeddings, labels)
 
         print(f"""
-                EER: {metrics['eer']:.4f}
+                EER: {metrics['eer']:.7f}
                 Threshold: {metrics['threshold']:.4f}
                 Genuine distances: {metrics['genuine_mean']:.2f} ± {metrics['genuine_std']:.2f}
                 Impostor distances: {metrics['impostor_mean']:.2f} ± {metrics['impostor_std']:.2f}
         """)
 
         if (e+2) % 1 == 0:
-            tsne = TSNE(random_state=0)
+            tsne = TSNE(random_state=0, perplexity=20)
             embeddings, labels = get_embeddings(model, test_dataloader, device=device)
             train_tsne_embeds = tsne.fit_transform(embeddings)
 
@@ -135,3 +144,4 @@ if __name__ == '__main__':
 
 
         scheduler.step(train_loss)
+

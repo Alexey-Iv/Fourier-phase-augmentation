@@ -242,3 +242,86 @@ def scatter(x, labels, root=None, subtitle=None):
 
     plt.savefig(os.path.join(root, str(subtitle)))
     plt.close()
+
+def zero_shot_inference(sample_embedding, class_embeddings, class_names):
+    """
+    Оптимизированная версия с использованием встроенных функций PyTorch
+    """
+    max_similarity = -float('inf')
+    predicted_class = None
+
+    for class_name in class_names:
+        # Получаем все эмбеддинги класса (тензор [N, D])
+        class_embs = class_embeddings[class_name]
+
+        # Вычисляем косинусную схожесть сразу для всех примеров класса
+        # Добавляем размерность для батча (из [D] -> [1, D])
+        similarities = F.cosine_similarity(
+            sample_embedding.unsqueeze(0),  # [1, D]
+            class_embs,                    # [N, D]
+            dim=1
+        )
+
+        # Находим максимальную схожесть для класса
+        class_max_sim = torch.max(similarities).item()
+
+        if class_max_sim > max_similarity:
+            max_similarity = class_max_sim
+            predicted_class = class_name
+
+    return predicted_class
+
+
+def get_emb(model, dataloader, device):
+    """Получение эмбеддингов в виде тензоров PyTorch"""
+    model.eval()
+    embeddings = []
+    labels = []
+    with torch.no_grad():
+        for inputs, targets in dataloader:
+            inputs = inputs.to(device)
+            emb = model(inputs)
+            emb = F.normalize(emb, p=2, dim=1)
+            embeddings.append(emb)  # Сохраняем как тензор
+            labels.append(targets.to(device))
+    return torch.cat(embeddings), torch.cat(labels)
+
+
+def check(model, model2, test_dl, device):
+    embeddings, labels = get_emb(model, test_dl, device)
+    x, lab = get_emb(model2, test_dl, device)
+
+    # Исправляем преобразование numpy в тензоры
+    class_embeddings = {}
+    for emb, label in zip(embeddings, labels):
+        label = label.item()
+        emb = emb.cpu()  # Переносим на CPU для совместимости
+
+        if label not in class_embeddings:
+            class_embeddings[label] = emb.unsqueeze(0)
+        else:
+            class_embeddings[label] = torch.cat([
+                class_embeddings[label],
+                emb.unsqueeze(0)
+            ], dim=0)
+
+    # Преобразуем все к одному устройству
+    device = next(model.parameters()).device
+    correct = 0
+    for emb, true_label in zip(x, lab):
+        emb = emb.to(device)
+        true_label = true_label.item()
+
+        # Конвертируем эмбеддинги класса к нужному устройству
+        class_embs_on_device = {
+            k: v.to(device) for k, v in class_embeddings.items()
+        }
+
+        predicted_class = zero_shot_inference(
+            emb,
+            class_embs_on_device,
+            list(class_embeddings.keys())
+        )
+        correct += (predicted_class == true_label)
+
+    return correct / len(lab)
