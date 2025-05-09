@@ -11,9 +11,31 @@ from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
 
 
+def coll_fn_augm(batch):
+    batch_size = len(batch)
+    images, labels = zip(*batch)
+    batch = torch.tensor(images)
+
+    alpha = 0.1
+
+    h_freq = torch.fft.fftshift(torch.fft.fft2(batch, norm='ortho'))
+    amplitude = torch.abs(h_freq)
+
+    phase_origin = torch.angle(h_freq)
+
+    h_ran = h_freq[random.randint(0, batch_size-1)] # [channels, H, W]
+    phase_random = torch.angle(h_ran)
+    phase_new = alpha * phase_random.unsqueeze(0) + (1 - alpha) * phase_origin
+    h_freq_new = amplitude * torch.exp(1j * phase_new)
+
+    output = torch.fft.ifft2(torch.fft.ifftshift(h_freq_new), norm='ortho').real
+
+    return output
+
+
 #(64, 512, 3)
 norm_transform = transforms.Compose([
-    transforms.Resize((224, 224)),
+    transforms.Resize((64, 512)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
@@ -265,7 +287,7 @@ def get_dl_2_IRIS(
         batch_size,
         num_workers=4,
         pin_memory=True,
-        shuffle=True,
+        shuffle=True
     )
 
     return train_dl, test_dl_few, test_dl_all

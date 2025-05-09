@@ -1,3 +1,6 @@
+'''
+Contains all modules for getting a APFA model.
+'''
 import torch
 from torch import nn
 import torchvision.models as models
@@ -6,7 +9,11 @@ import torch.nn.functional as F
 
 
 class Masked_Residual_Aggregation(nn.Module):
-    def __init__(self, in_channels, num_parts):
+    def __init__(self, in_channels : int, num_parts : int):
+        '''
+            in_channels : a int number, which implies the size of the input tensor to this module.
+            num_parts : a int number, which implies the count of hidden layers. They enhanced the layer's features
+        '''
         super(Masked_Residual_Aggregation, self).__init__()
         self.in_channels = in_channels
         self.num_parts = num_parts
@@ -39,6 +46,9 @@ class Masked_Residual_Aggregation(nn.Module):
 
 class Phase_Based_Augmentation(nn.Module):
     def __init__(self, gamma=0.1):
+        '''
+            gamma : a int number, which explains adding residual to the phase spectrum of other images in batch.
+        '''
         super().__init__()
         self.gamma = gamma
 
@@ -108,6 +118,7 @@ class APFA(nn.Module):
         x = self.resnet_encoder(x)  # [B, 2048, H, W]
 
         x = self.hyb_module(x)
+
         x = self.pool(x)
         x = x.flatten(1)
         x = self.classifier(x)
@@ -125,4 +136,3 @@ class Triplet_Network(nn.Module):
         norm_emb = F.normalize(self.orig_branch(orig_img), p=2, dim=1)
 
         return norm_emb
-

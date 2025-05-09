@@ -2,6 +2,7 @@ import math
 import torch
 from torch import nn
 from torchvision import models
+from ..model.apha import APFA
 
 
 def spatial_pyramid_pool(previous_conv, num_sample, previous_conv_size, out_pool_size):

@@ -6,7 +6,7 @@ import random
 import numpy as np
 
 
-def augm_batch_of_images(batch, a):
+def augm_batch_of_images(batch, alpha=0.05):
     batch_size, channels, H, W = batch.shape
 
     h_freq = torch.fft.fftshift(torch.fft.fft2(batch, norm='ortho'))
@@ -16,7 +16,7 @@ def augm_batch_of_images(batch, a):
 
     h_ran = h_freq[random.randint(0, batch_size-1)] # [channels, H, W]
     phase_random = torch.angle(h_ran)
-    phase_new = a * phase_random.unsqueeze(0) + (1 - a) * phase_origin
+    phase_new = alpha * phase_random.unsqueeze(0) + (1 - alpha) * phase_origin
     h_freq_new = amplitude * torch.exp(1j * phase_new)
 
     output = torch.fft.ifft2(torch.fft.ifftshift(h_freq_new), norm='ortho').real
