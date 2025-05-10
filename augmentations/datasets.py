@@ -1,5 +1,7 @@
 import torch
 from torchvision import transforms
+from torch.utils.data import DataLoader, Dataset
+
 
 # hyperparameters
 PATH_DATASET = "/kaggle/input/cub2002011/CUB_200_2011/images"
@@ -28,7 +30,7 @@ def coll_fn_augm(batch):
     return output
 
 
-class FilteredImageNet(Dataset):
+class Filtered_Dataset(Dataset):
     def __init__(
         self,
         root,
@@ -110,22 +112,3 @@ val_transform = transforms.Compose([
 ])
 
 
-# Создаем train_dataset
-train_dataset = FilteredImageNet(
-    root=PATH_DATASET,
-    num_classes=num_classes,
-    transform=train_transform,
-    split='train',
-    seed=42,
-    test_size=0.2
-)
-
-# Создаем val_dataset с теми же классами и разделением
-val_dataset = FilteredImageNet(
-    root="/kaggle/input/cub2002011/CUB_200_2011/images",
-    num_classes=num_classes,
-    transform=val_transform,
-    split='val',
-    selected_classes=train_dataset.selected_classes,
-    samples_split=train_dataset.samples_split
-)

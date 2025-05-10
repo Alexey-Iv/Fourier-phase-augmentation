@@ -12,9 +12,15 @@ import numpy as np
 from tqdm import tqdm
 import random
 import os
+from datetime import datetime
+import seaborn as sns
+import matplotlib.pyplot as plt
+import sys
+sys.path.append("../model/")
 
-from ..model.resnet import get_resnet
-from .datasets import coll_fn_augm, Filtered_Dataset, train_transform, valid_transform
+from resnet import get_resnet
+from datasets import coll_fn_augm, Filtered_Dataset, train_transform, val_transform
+import argparse
 
 ## -------------------------------------------------------------- ##
 
@@ -22,8 +28,6 @@ SEED = 42
 torch.manual_seed(SEED)
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-# TODO
-# Add a feature which save a model.parameters(checpoints)
 
 class Trainer():
     def __init__(
@@ -33,7 +37,7 @@ class Trainer():
         batch_size=32,
         collate_fn=coll_fn_augm,
         train_transform=train_transform,
-        valid_transform=valid_transform,
+        valid_transform=val_transform,
         num_epochs=30,
         num_workers=4
     ):
@@ -59,8 +63,15 @@ class Trainer():
         self.best_acc = 0.0
         self.number = 0
 
-        self.dir_model = "./"
-        # TODO add feature with making a directory, which covering all models parameters
+
+        self.dir_model = f"./models_out_{datetime.now()}"
+        self.dir_plot = self.dir_model + "/plot"
+
+        if not os.path.exists(self.dir_model):
+            os.makedirs(self.dir_model)
+
+        if not os.path.exists(self.dir_plot):
+            os.makedirs(self.dir_plot)
 
     def train(self):
         train_dataloader, _ = _get_dataloaders()
@@ -115,6 +126,7 @@ class Trainer():
 
     def valid(self, weights_model=None):
         if self.model == None:
+            pass
             # TODO
             # Add feature, whick allows to download the model's weights
         else:
@@ -189,33 +201,77 @@ class Trainer():
 
     def save_model(self):
         if self.model:
-            torch.save(self.model.state_dict(), f"{self.dir_model}/best_model_{self.number}.pth")
+            torch.save(self.model.state_dict(), f"{self.dir_model}/model_{self.number}.pth")
 
     def save_graphics(self):
-        plt.figure(figsize=(12, 5))
+        sns.set_theme(style="whitegrid", context="talk", palette="colorblind")
+        plt.rcParams['font.family'] = 'DejaVu Sans'
 
-        # Loss train/valid
-        plt.plot(self.train_losses, label='Train Loss')
-        plt.plot(self.val_losses, label='Val Loss')
-        plt.title('Training and Validation Loss')
-        plt.xlabel('Epoch')
-        plt.ylabel('Loss')
-        plt.legend()
+        # 1. Loss train/valid
+        plt.figure(figsize=(13, 6))
+        sns.lineplot(
+            x=range(len(self.train_losses)),
+            y=self.train_losses,
+            label='Train Loss',
+            linewidth=2.5,
+            marker='o',
+            markersize=8
+        )
+        sns.lineplot(
+            x=range(len(self.val_losses)),
+            y=self.val_losses,
+            label='Val Loss',
+            linewidth=2.5,
+            marker='s',
+            markersize=8
+        )
+
+        plt.title('Training and Validation Loss', fontsize=16, pad=20)
+        plt.xlabel('Epoch', fontsize=14)
+        plt.ylabel('Loss', fontsize=14)
+        plt.legend(title='', frameon=True, facecolor='white')
         plt.tight_layout()
-        plt.savefig("loss_output.png")
+        plt.savefig(f"{self.dir_plot}/loss_output.svg", dpi=300, format="svg", bbox_inches='tight')
+        plt.close()
 
-        # Accuracy
-        plt.plot(self.val_accuracies_top1, label='TOP 1 ACC', color='green')
-        plt.plot(self.val_accuracies_top5, label='TOP 5 ACC', color='blue')
-        plt.title('Validation Accuracy')
-        plt.xlabel('Epoch')
-        plt.ylabel('Accuracy (%)')
+        # 2. Accuracy
+        plt.figure(figsize=(13, 6))
+        palette = sns.color_palette("husl", 2)
+
+        sns.lineplot(
+            x=range(len(self.val_accuracies_top1)),
+            y=self.val_accuracies_top1,
+            label='TOP 1 ACC',
+            color=palette[0],
+            linewidth=2.5,
+            marker='^',
+            markersize=8
+        )
+        sns.lineplot(
+            x=range(len(self.val_accuracies_top5)),
+            y=self.val_accuracies_top5,
+            label='TOP 5 ACC',
+            color=palette[1],
+            linewidth=2.5,
+            marker='d',
+            markersize=8
+        )
+
+        plt.title('Validation Accuracy', fontsize=16, pad=20)
+        plt.xlabel('Epoch', fontsize=14)
+        plt.ylabel('Accuracy (%)', fontsize=14)
+        plt.legend(title='', frameon=True, facecolor='white')
         plt.tight_layout()
-        plt.legend()
-        plt.savefig("accuracy_output.png")
+        plt.savefig(f"{self.dir_plot}/accuracy_output.svg", dpi=300, format="svg", bbox_inches='tight')
+        plt.close()
 
-        np.save(f'{self.dir_model}/array_losses.npz', train_losses, val_losses)
-        np.save(f'{self.dir_model}/array_accuracy.npz', val_accuracies_top1, val_accuracies_top2)
+        np.savez(f'{self.dir_plot}/array_losses.npz',
+                train_losses=self.train_losses,
+                val_losses=self.val_losses)
+
+        np.savez(f'{self.dir_plot}/array_accuracy.npz',
+                val_accuracies_top1=self.val_accuracies_top1,
+                val_accuracies_top5=self.val_accuracies_top5)
 
     def _get_model(self):
         model = get_resnet(self.num_classes).to(self.device)
@@ -297,4 +353,15 @@ class Trainer():
 
 
 if __name__ == "__main__":
-    pass
+    parser = argparse.ArgumentParser(description='Get a result from working of phase augmentation.')
+    parser.add_argument('root', type=str, help='Path to you directory of images.')
+    parser.add_argument('num_cl', type=int, default=200, help='Count of classes.')
+    args = parser.parse_args()
+
+    model = Trainer(
+        args.root,
+        args.num_cl
+    )
+
+    model.train()
+
