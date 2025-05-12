@@ -85,13 +85,15 @@ def cal_eer(target, imposter):
 
     return eer, eer_threshold
 
-ROOT_HIST = None
 
-def get_hist(model, test_dl, device=None, out="result.png", root=None):
+ROOT_HIST = None
+def get_hist(model, test_dl, device=None, out="result.png", subtitle=None, root=None):
     global ROOT_HIST
     if root == None:
         if ROOT_HIST == None:
-            ROOT_HIST = f"hist_{datetime.now()}"
+            current_time = datetime.now()
+            formated_time = current_time.strftime("%m-%d_%H:%M:%S")
+            ROOT_HIST = f"hist-{subtitle}-{formated_time}"
             root = ROOT_HIST
             if not os.path.exists(ROOT_HIST):
                 os.makedirs(ROOT_HIST)
@@ -182,9 +184,11 @@ def get_hist(model, test_dl, device=None, out="result.png", root=None):
     plt.ylabel('Probability')
     plt.legend()
 
+    if subtitle != None:
+        plt.suptitle(subtitle)
+
     plt.savefig(os.path.join(root, out))
 
-    #plt.show()
     plt.close()
 
     print(f"EER: {eer.item():.4f} at threshold: {eer_threshold.item():.4f}")
@@ -192,12 +196,14 @@ def get_hist(model, test_dl, device=None, out="result.png", root=None):
 
 PATH_PLOT = None
 # Define our own plot function
-def scatter(x, labels, root=None, subtitle=None):
+def scatter(x, labels, subtitle=None, root=None):
     global PATH_PLOT
     if root == None:
         if PATH_PLOT == None:
-            PATH_PLOT = f"plot_{datetime.now()}"
-            root = ROOT_HIST
+            current_time = datetime.now()
+            formated_time = current_time.strftime("%m-%d_%H:%M:%S")
+            PATH_PLOT = f"plot_{subtitle[:-1]}_{formated_time}"
+            root = PATH_PLOT
             if not os.path.exists(root):
                 os.makedirs(root)
         else:
@@ -242,6 +248,7 @@ def scatter(x, labels, root=None, subtitle=None):
 
     plt.savefig(os.path.join(root, str(subtitle)))
     plt.close()
+
 
 def zero_shot_inference(sample_embedding, class_embeddings, class_names):
     """

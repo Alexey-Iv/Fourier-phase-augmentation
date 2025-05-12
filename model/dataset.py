@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader, Dataset
 import torch.nn.functional as F
 from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 
 def coll_fn_augm(batch):
@@ -75,17 +76,80 @@ another_transform = transforms.Compose([
 ])
 
 
-# TODO
-# написать датасет для разбиения обучающей и тестовой выборки
 class Iris_Classification_Dataset(torch.utils.data.Dataset):
-    def __init__():
-        pass
+    def __init__(
+        self,
+        root_dir,
+        train=True,
+        transform=None,
+        test_size=0.2,
+        random_state=42
+):
+        self.root_dir = root_dir
+        self.transform = transform
+        self.train = train
 
-    def __len__():
-        pass
+        image_paths = []
+        labels = []
 
-    def __getitem__():
-        pass
+        # Проходим по всем папкам пациентов
+        patient_folders = [d for d in os.listdir(root_dir)
+                          if os.path.isdir(os.path.join(root_dir, d)) and d.isdigit()]
+
+        for patient_folder in sorted(patient_folders):
+            patient_id = int(patient_folder)
+            patient_path = os.path.join(root_dir, patient_folder)
+
+            # Обрабатываем обе стороны глаза
+            for side in ['L', 'R']:
+                side_path = os.path.join(patient_path, side)
+
+                if not os.path.exists(side_path):
+                    continue
+
+                # Собираем изображения с поддержкой форматов
+                for img_name in os.listdir(side_path):
+                    if img_name.lower().endswith(('.png', '.jpg', '.jpeg')):
+
+                        img_path = os.path.join(side_path, img_name)
+                        image_paths.append(img_path)
+
+                        # Формируем метку класса
+                        class_label = (patient_id - 1) * 2 + (0 if side == 'L' else 1)
+
+                        labels.append(class_label)
+
+
+        # Стратифицированное разделение данных
+        train_idx, test_idx = train_test_split(
+            range(len(image_paths)),
+            test_size=test_size,
+            random_state=random_state,
+            stratify=labels,
+            shuffle=True
+        )
+
+        # Выбираем соответствующую выборку
+        if self.train:
+            self.image_paths = [image_paths[i] for i in train_idx]
+            self.labels = [labels[i] for i in train_idx]
+        else:
+            self.image_paths = [image_paths[i] for i in test_idx]
+            self.labels = [labels[i] for i in test_idx]
+
+    def __len__(self):
+        return len(self.image_paths)
+
+    def __getitem__(self, idx):
+        img_path = self.image_paths[idx]
+        label = self.labels[idx]
+
+        image = Image.open(img_path).convert('RGB')
+
+        if self.transform:
+            image = self.transform(image)
+
+        return image, label
 
 
 class IrisDataset(torch.utils.data.Dataset):
@@ -101,18 +165,17 @@ class IrisDataset(torch.utils.data.Dataset):
         self.transform = transform
         self.mode = mode
 
-        self.need_classes = []
         self.class_to_idxs = defaultdict(list)
+        self.data = []
 
         all_patients = sorted(
             glob.glob(os.path.join(self.root, '*')),
             key=lambda x: int(os.path.basename(x))
         )
 
-        self.data = []
         if mode == "train":
             self.patients = all_patients[:num_seen_classes]
-            self.need_classes = list(range(num_seen_classes))
+            self.need_classes = list(range(num_seen_classes * 2))
 
             for patient_dir in self.patients:
                 patient_id = int(os.path.basename(patient_dir))
@@ -120,11 +183,13 @@ class IrisDataset(torch.utils.data.Dataset):
                     eye_path = os.path.join(patient_dir, eye_dir)
                     if os.path.exists(eye_path):
                         images = glob.glob(os.path.join(eye_path, '*.*'))
-                        self.data.extend([(img, patient_id) for img in images])
+                        eye_class = 2 * patient_id if eye_dir == 'L' else 2 * patient_id + 1
+                        self.data.extend([(img, eye_class) for img in images])
 
         elif mode in ["test_few", "test_all"]:
             self.patients = all_patients[num_seen_classes:]
-            self.need_classes = [i for i in range(len(all_patients) - num_seen_classes)]
+            total_patients = len(all_patients)
+            self.need_classes = [2*i for i in range(num_seen_classes, total_patients)]
 
             for patient_dir in self.patients:
                 patient_id = int(os.path.basename(patient_dir))
@@ -132,16 +197,21 @@ class IrisDataset(torch.utils.data.Dataset):
                     eye_path = os.path.join(patient_dir, eye_dir)
                     if os.path.exists(eye_path):
                         images = glob.glob(os.path.join(eye_path, '*.*'))
+                        eye_class = 2 * patient_id if eye_dir == 'L' else 2 * patient_id + 1
+
                         if mode == "test_few":
                             selected_images = images[:1]
                         else:
                             selected_images = images[1:]
-                        self.data.extend([(img, patient_id) for img in selected_images])
+
+                        self.data.extend([(img, eye_class) for img in selected_images])
+
         else:
             raise ValueError("Invalid mode. Use 'train' or 'test'")
 
+        # Обновляем индексы классов
         for idx, (_, label) in enumerate(self.data):
-            self.class_to_idxs[label-1].append(idx)
+            self.class_to_idxs[label].append(idx)
 
     def __len__(self):
         return len(self.data)
@@ -152,8 +222,8 @@ class IrisDataset(torch.utils.data.Dataset):
 
         if self.transform:
             image = self.transform(image)
+        return image, label
 
-        return image, label-1
 
 
 def random_choice_except(options, exception):
@@ -244,8 +314,8 @@ def get_dl_2_IRIS(
     transform_train=None,
     transform_test=None
 ):
-    # if transform_test == None:
-    #     transform_test = transform_train
+    if transform_test == None:
+         transform_test = transform_train
 
     train_data = IrisDataset(
         path,

@@ -9,9 +9,11 @@ num_classes = 200
 
 
 def coll_fn_augm(batch):
-    batch_size = len(batch)
     images, labels = zip(*batch)
-    batch = torch.tensor(images)
+    labels = torch.as_tensor(labels)
+
+    batch = torch.stack([torch.as_tensor(img) for img in images])
+    batch_size, channels, height, width = batch.shape
 
     alpha = 0.1
 
@@ -27,7 +29,7 @@ def coll_fn_augm(batch):
 
     output = torch.fft.ifft2(torch.fft.ifftshift(h_freq_new), norm='ortho').real
 
-    return output
+    return output, labels
 
 
 class Filtered_Dataset(Dataset):
@@ -105,7 +107,7 @@ train_transform = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
-val_transform = transforms.Compose([
+valid_transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])

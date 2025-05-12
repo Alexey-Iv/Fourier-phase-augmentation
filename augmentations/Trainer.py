@@ -21,6 +21,8 @@ sys.path.append("../model/")
 from resnet import get_resnet
 from datasets import coll_fn_augm, Filtered_Dataset, train_transform, val_transform
 import argparse
+from dataset import Iris_Classification_Dataset
+
 
 ## -------------------------------------------------------------- ##
 
@@ -37,10 +39,11 @@ class Trainer():
         batch_size=32,
         collate_fn=coll_fn_augm,
         train_transform=train_transform,
-        valid_transform=val_transform,
+        valid_transform=valid_transform,
         num_epochs=30,
         num_workers=4
     ):
+        self.root = root
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.num_classes = num_classes
         self.collate_fn = collate_fn
@@ -48,6 +51,7 @@ class Trainer():
         self.valid_transform = valid_transform
         self.batch_size = batch_size
         self.num_epochs = num_epochs
+        self.e = 0
         self.num_workers = num_workers
 
         self.model = None
@@ -74,14 +78,15 @@ class Trainer():
             os.makedirs(self.dir_plot)
 
     def train(self):
-        train_dataloader, _ = _get_dataloaders()
-        model = _get_model()
-        criterion, optimizer = _get_optimizer()
-        scheduler = _get_scheduler()
+        train_dataloader, _ = self._get_dataloaders()
+        model = self._get_model()
+        criterion, optimizer = self._get_optimizer()
+        scheduler = self._get_scheduler()
 
         for e in range(self.num_epochs):
             model.train()
 
+            self.e = e
             with tqdm(
                 train_dataloader,
                 desc=f"Epoch {e+1}/{num_epochs} [Train]",
@@ -94,7 +99,7 @@ class Trainer():
                     x_batch = x_batch.to(self.device)
                     y_batch = y_batch.to(self.device)
 
-                    self.optimizer.zero_grad()
+                    optimizer.zero_grad()
 
                     logits = model(x_batch)
                     loss = criterion(logits, y_batch)
@@ -133,7 +138,7 @@ class Trainer():
             model = self.model
 
         if self.valid_dl == None:
-            _, test_dataloader = _get_dataloaders()
+            _, test_dataloader = self._get_dataloaders()
         else:
             test_dataloader = self.valid_dl
 
@@ -146,9 +151,10 @@ class Trainer():
         correct_top5 = 0
         total = 0
 
+        e = self.e
         with tqdm(
             test_dataloader,
-            desc=f"Epoch {e+1}/{num_epochs} [Val]",
+            desc=f"Epoch {e+1}/{self.num_epochs} [Val]",
             leave=False,
             dynamic_ncols=True
         ) as pbar:
@@ -295,10 +301,10 @@ class Trainer():
 
         return criterion, optimizer
 
-    def _get_scheduler(optimizer):
+    def _get_scheduler(self, optimizer):
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
             optimizer,
-            mode='min',
+            mode='max',
             factor=0.1,
             patience=2
         )
@@ -306,23 +312,35 @@ class Trainer():
         return scheduler
 
     def _get_datasets(self):
-        train_dataset = Filtered_Dataset(
-            root=self.root,
-            num_classes=self.num_classes,
-            transform=self.train_transform,
-            split='train',
-            seed=42,
-            test_size=0.2
-        )
+        # train_dataset = Filtered_Dataset(
+        #     root=self.root,
+        #     num_classes=self.num_classes,
+        #     transform=self.train_transform,
+        #     split='train',
+        #     seed=42,
+        #     test_size=0.2
+        # )
 
         # Создаем val_dataset с теми же классами и разделением
-        val_dataset = Filtered_Dataset(
+        # val_dataset = Filtered_Dataset(
+        #     root=self.root,
+        #     num_classes=self.num_classes,
+        #     transform=self.valid_transform,
+        #     split='val',
+        #     selected_classes=train_dataset.selected_classes,
+        #     samples_split=train_dataset.samples_split
+        # )
+
+        train_dataset = Iris_Classification_Dataset(
             root=self.root,
-            num_classes=self.num_classes,
-            transform=self.val_transform,
-            split='val',
-            selected_classes=train_dataset.selected_classes,
-            samples_split=train_dataset.samples_split
+            True,
+            transform=self.train_transform
+        )
+
+        val_dataset = Iris_Classification_Dataset(
+            root=self.root,
+            False,
+            transform=self.valid_transform
         )
 
         return train_dataset, val_dataset
