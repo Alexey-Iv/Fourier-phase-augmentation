@@ -53,6 +53,7 @@ original_model_parameters = {
     'num_classes' : 512
 }
 
+# TODO переписать в lighting код
 
 if __name__ == '__main__':
 

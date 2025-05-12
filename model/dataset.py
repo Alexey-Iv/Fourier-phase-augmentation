@@ -109,15 +109,16 @@ class Iris_Classification_Dataset(torch.utils.data.Dataset):
 
                 # Собираем изображения с поддержкой форматов
                 for img_name in os.listdir(side_path):
-                    if img_name.lower().endswith(('.png', '.jpg', '.jpeg')):
+                    if len(os.listdir(side_path)) == 1:
+                        continue
 
-                        img_path = os.path.join(side_path, img_name)
-                        image_paths.append(img_path)
+                    img_path = os.path.join(side_path, img_name)
+                    image_paths.append(img_path)
 
-                        # Формируем метку класса
-                        class_label = (patient_id - 1) * 2 + (0 if side == 'L' else 1)
+                    # Формируем метку класса
+                    class_label = (patient_id - 1) * 2 + (0 if side == 'L' else 1)
 
-                        labels.append(class_label)
+                    labels.append(class_label)
 
 
         # Стратифицированное разделение данных
