@@ -19,7 +19,7 @@ import sys
 from resnet import get_resnet
 from dataset import norm_transform, Iris_Classification_Dataset
 sys.path.append("../graphics")
-from make_gif import create_animation
+from make_gif import create_animation_from_dataset
 from apha import APFA
 
 
@@ -316,6 +316,6 @@ if __name__ == "__main__":
     tmp = Trainer(model, train_loader, test_loader)
     tmp.train()
 
-    create_animation(20, test_dataset, "gif/iris_animation.gif")
+    create_animation_from_dataset(20, test_dataset, "gif/iris_animation.gif")
 
 

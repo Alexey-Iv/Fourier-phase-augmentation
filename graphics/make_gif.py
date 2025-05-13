@@ -3,9 +3,10 @@ import matplotlib.pyplot as plt
 import imageio
 from PIL import Image
 from io import BytesIO
+import os
 
 
-def create_animation(frames_count=10, test_dataset=None, output_path="animation.gif"):
+def create_animation_from_dataset(frames_count=10, test_dataset=None, output_path="animation.gif"):
     frames = []
 
     for i in range(frames_count):
@@ -46,6 +47,36 @@ def create_animation(frames_count=10, test_dataset=None, output_path="animation.
     )
 
     print(f"GIF сохранен в {output_path}")
+
+
+def create_animation_from_dir(root_dir=None, output_path="animation.gif"):
+    frames = []
+
+    for i in is.listdir(root_dir):
+        img = Image.open(file).convert("RGB")
+
+        fig = plt.figure(figsize=(6, 6))
+        plt.imshow(img)
+        plt.axis('off')
+
+        buf = BytesIO()
+        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0)
+        buf.seek(0)
+        frames.append(Image.open(buf))
+        plt.close()
+
+    # Сохраняем как GIF
+    frames[0].save(
+        output_path,
+        save_all=True,
+        append_images=frames[1:],
+        duration=1500,
+        loop=0
+    )
+
+    print(f"GIF сохранен в {output_path}")
+
+
 
 if __name__ == "__main__":
     # Example
